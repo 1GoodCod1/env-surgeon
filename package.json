@@ -1,27 +1,68 @@
 {
   "name": "env-surgeon",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "0.1.1",
+  "description": "CLI + library to diff, scan, check and validate .env files",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "bin": {
+    "env-surgeon": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "keywords": [
+    "env",
+    "dotenv",
+    "cli",
+    "validation",
+    "diff",
+    "devtools",
+    "12factor",
+    "configuration"
+  ],
+  "homepage": "https://github.com/env-surgeon/env-surgeon#readme",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "pretest": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run typecheck && npm run build && npm run test"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/1GoodCod1/env-surgeon.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "bugs": {
-    "url": "https://github.com/1GoodCod1/env-surgeon/issues"
+    "url": "https://github.com/env-surgeon/env-surgeon/issues"
   },
-  "homepage": "https://github.com/1GoodCod1/env-surgeon#readme",
+  "author": "env-surgeon contributors",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "fast-glob": "^3.3.2"
+  },
   "devDependencies": {
     "@types/node": "^25.6.0",
     "tsup": "^8.5.1",
     "typescript": "^6.0.2",
     "vitest": "^4.1.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
