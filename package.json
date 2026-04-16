@@ -34,6 +34,7 @@
   ],
   "homepage": "https://github.com/env-surgeon/env-surgeon#readme",
   "scripts": {
+    "postinstall": "patch-package",
     "build": "tsup",
     "dev": "tsup --watch",
     "pretest": "tsup",
@@ -58,6 +59,7 @@
   },
   "devDependencies": {
     "@types/node": "^25.6.0",
+    "patch-package": "^8.0.1",
     "tsup": "^8.5.1",
     "typescript": "^6.0.2",
     "vitest": "^4.1.4"

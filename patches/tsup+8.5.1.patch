@@ -1,0 +1,13 @@
+diff --git a/node_modules/tsup/dist/rollup.js b/node_modules/tsup/dist/rollup.js
+index e128b61..38f91ad 100644
+--- a/node_modules/tsup/dist/rollup.js
++++ b/node_modules/tsup/dist/rollup.js
+@@ -6834,7 +6834,7 @@ var getRollupConfig = async (options) => {
+           tsconfig: options.tsconfig,
+           compilerOptions: {
+             ...compilerOptions,
+-            baseUrl: compilerOptions.baseUrl || ".",
++            ...(compilerOptions.baseUrl ? { baseUrl: compilerOptions.baseUrl } : {}),
+             // Ensure ".d.ts" modules are generated
+             declaration: true,
+             // Skip ".js" generation

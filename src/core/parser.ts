@@ -70,7 +70,7 @@ const LINE_RE =
     LINE_RE.lastIndex = 0;
     let match: RegExpExecArray | null;
     while ((match = LINE_RE.exec(normalized)) !== null) {
-        const [key, double, single, bare] = match;
+        const [, key, double, single, bare] = match;
         if (key === undefined) continue;
 
         let value: string;
@@ -93,7 +93,7 @@ const LINE_RE =
     if (options.expand === true) {
         const expandableKeys = new Set(expandable.map((e) => e.key));
         for (const key of expandableKeys) {
-            result.set(key, ); // TODO resolve ${VAR}
+            result.set(key, resolveVar(key, result, expandableKeys, new Set()));
         }
     }
 
@@ -124,7 +124,26 @@ function resolveVar(
   depth = 0,
   useProcessEnv = true,  
 ): string {
-
+  if (depth > MAX_EXPAND_DEPTH) return env.get(name) ?? '';
+  if (visiting.has(name)) return '';
+  const raw = env.get(name);
+  if (raw === undefined) return useProcessEnv ? (process.env[name] ?? '') : '';
+  
+  visiting.add(name);
+  const resolved = raw.replace(VAR_RE, (whole, braced?: string, bare?: string) => {
+    if (whole === '\\$') return '$';
+    const ref = braced ?? bare;
+    if (ref === undefined) return whole;
+    if (expandable.has(ref)) {
+        return resolveVar(ref, env, expandable, visiting, depth + 1, useProcessEnv)
+    };
+    const fromFile = env.get(ref);
+    if (fromFile !== undefined) return fromFile;
+    return useProcessEnv ? (process.env[ref] ?? '') : '';
+  });
+  visiting.delete(name);
+  env.set(name, resolved);
+  
   return resolved;  
 }
  
