@@ -76,7 +76,7 @@ const LINE_RE =
         let value: string;
         let qouted = false;
         if (double !== undefined) {
-            value = // TODO undescapeDoubleQouted
+            value = undescapeDoubleQouted(double);
             qouted = true;
         } else if (single !== undefined) {
             // SingeQ are literal -> never expand
@@ -99,3 +99,19 @@ const LINE_RE =
 
     return result;
  } 
+
+ function undescapeDoubleQouted(value: string): string {
+    return value.replace(/\\(.)/g, (_, ch: string) => {
+        switch(ch) {
+         case 'n': return '\n'
+         case 'r': return '\r'
+         case 't': return '\t'
+         case 'b': return '\b'
+         case 'f': return '\f'
+         case '\\': return '\\'
+         case '"': return '"'
+         case "'": return "'"
+         default: return ch
+        }
+    });
+ }
