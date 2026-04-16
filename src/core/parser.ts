@@ -100,6 +100,15 @@ const LINE_RE =
     return result;
  } 
 
+ // Matches `$VAR`, `${VAR}`, or `\$` escape. Bounded identifier length to avoid pathological inputs.
+const VAR_RE = /\\\$|\$\{([A-Za-z_][A-Za-z0-9_]{0,127})\}|\$([A-Za-z_][A-Za-z0-9_]{0,127})/g
+const MAX_EXPAND_DEPTH = 16
+
+export interface ExpandOptions {
+  /** When false, `${UNKNOWN}` resolves to '' instead of falling back to process.env. Default true. */
+  readonly useProcessEnv?: boolean
+}
+
  function undescapeDoubleQouted(value: string): string {
     return value.replace(/\\(.)/g, (_, ch: string) => {
         switch(ch) {
