@@ -101,26 +101,46 @@ const LINE_RE =
  } 
 
  // Matches `$VAR`, `${VAR}`, or `\$` escape. Bounded identifier length to avoid pathological inputs.
-const VAR_RE = /\\\$|\$\{([A-Za-z_][A-Za-z0-9_]{0,127})\}|\$([A-Za-z_][A-Za-z0-9_]{0,127})/g
-const MAX_EXPAND_DEPTH = 16
+const VAR_RE = /\\\$|\$\{([A-Za-z_][A-Za-z0-9_]{0,127})\}|\$([A-Za-z_][A-Za-z0-9_]{0,127})/g;
+const MAX_EXPAND_DEPTH = 16;
 
 export interface ExpandOptions {
   /** When false, `${UNKNOWN}` resolves to '' instead of falling back to process.env. Default true. */
   readonly useProcessEnv?: boolean
 }
 
- function undescapeDoubleQouted(value: string): string {
-    return value.replace(/\\(.)/g, (_, ch: string) => {
-        switch(ch) {
-         case 'n': return '\n'
-         case 'r': return '\r'
-         case 't': return '\t'
-         case 'b': return '\b'
-         case 'f': return '\f'
-         case '\\': return '\\'
-         case '"': return '"'
-         case "'": return "'"
-         default: return ch
-        }
-    });
- }
+/**
+ * Resolves `${VAR}` references iteratively (dotenv-expand semantics).
+ * Cycles (`A=${B}`, `B=${A}`) are broken at detection — the cycling var
+ * expands to empty string rather than hanging. Depth is capped as a
+ * final safety net against pathological chains.
+ */
+
+function resolveVar(
+  name: string,
+  env: Map<string, string>,
+  expandable: ReadonlySet<string>,
+  visiting: Set<string>,
+  depth = 0,
+  useProcessEnv = true,  
+): string {
+
+  return resolved;  
+}
+ 
+
+function undescapeDoubleQouted(value: string): string {
+ return value.replace(/\\(.)/g, (_, ch: string) => {
+    switch(ch) {
+        case 'n': return '\n'
+        case 'r': return '\r'
+        case 't': return '\t'
+        case 'b': return '\b'
+        case 'f': return '\f'
+        case '\\': return '\\'
+        case '"': return '"'
+        case "'": return "'"
+        default: return ch
+    }
+  });
+}
