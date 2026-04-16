@@ -61,3 +61,41 @@ export async function parseEnvFile(options: ParserOptions): Promise<EnvMap> {
 */
 const LINE_RE =
   /(?:^|\n)[ \t]*(?:export[ \t]+)?([A-Za-z_][A-Za-z0-9_]*)[ \t]*=[ \t]*(?:"((?:\\.|[^"\\])*)"|'((?:[^'])*)'|([^\n#]*?))[ \t]*(?:#[^\n]*)?(?=\n|$)/g
+
+ export function parseEnvString(raw: string, options: ParseStringOptions = {}): EnvMap {
+    const result = new Map<string, string>();
+    const expandable: Array<{ key: string, qouted: boolean }> = [];
+    const normalized = raw.replace(/\r\n/g, '\n');
+
+    LINE_RE.lastIndex = 0;
+    let match: RegExpExecArray | null;
+    while ((match = LINE_RE.exec(normalized)) !== null) {
+        const [key, double, single, bare] = match;
+        if (key === undefined) continue;
+
+        let value: string;
+        let qouted = false;
+        if (double !== undefined) {
+            value = // TODO undescapeDoubleQouted
+            qouted = true;
+        } else if (single !== undefined) {
+            // SingeQ are literal -> never expand
+            result.set(key, single);
+            continue 
+        } else {
+            value = ( bare ?? '').trim();
+        }
+
+        result.set(key, value);
+        if (options.expand === true) expandable.push({ key, qouted});
+    }
+
+    if (options.expand === true) {
+        const expandableKeys = new Set(expandable.map((e) => e.key));
+        for (const key of expandableKeys) {
+            result.set(key, ); // TODO resolve ${VAR}
+        }
+    }
+
+    return result;
+ } 
