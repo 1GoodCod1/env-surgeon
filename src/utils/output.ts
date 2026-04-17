@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import type { DiffResult } from '../core/differ.js';
+import type { CheckResult } from '../core/checker.js';
 
 export type OutputFormat = 'text' | 'json' | 'junit';
 
