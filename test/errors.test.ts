@@ -2,7 +2,7 @@ import { describe, it, expect, afterEach, beforeEach } from 'vitest';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { defaultEnvCascade, readEnvCascade } from '../src/utils/errors';
+import { defaultEnvCascade, readEnvCascade } from '../src/utils/errors.ts';
 
 describe('defaultEnvCascade', () => {
   let dir: string;

@@ -1,0 +1,2 @@
+# Match Prettier endOfLine: lf — avoid CRLF coming back on Windows.
+* text=auto eol=lf
