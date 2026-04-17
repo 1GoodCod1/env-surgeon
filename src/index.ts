@@ -4,9 +4,6 @@ export { diffEnvMaps, hasDifferences } from './core/differ.js';
 export type { DiffResult, DiffEntry } from './core/differ.js';
 export { readEnvCascade, defaultEnvCascade, UserError } from './utils/errors.js';
 
-/** Keep in sync with package.json */
-export const version = '0.1.1';
-
 import { resolve } from 'node:path';
 import { parseEnvString, parseEnvFile } from './core/parser.js';
 import { diffEnvMaps } from './core/differ.js';
