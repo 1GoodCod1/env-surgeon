@@ -64,3 +64,40 @@ export function checkEnv(
     extra: extra.sort(),
   };
 }
+
+/**
+ * Parses optional key markers from raw .env.example content.
+ * A key is optional when preceded by a line: `# optional`
+ *
+ * @example
+ * # optional
+ * SENTRY_DSN=
+ */
+export function parseOptionalKeys(raw: string): ReadonlySet<string> {
+  const lines = raw.split('\n');
+  const optionalKeys = new Set<string>();
+  const INLINE_RE = /#\s*optional\b/i;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]?.trim() ?? '';
+    const nextLine = lines[i + 1]?.trim() ?? '';
+
+    // Marker line above the key: `# optional\nKEY=`
+    if (/^#\s*optional\s*$/i.test(line) && nextLine !== '') {
+      const key = nextLine.split('=')[0]?.trim();
+      if (key !== undefined && key.length > 0) optionalKeys.add(key);
+    }
+
+    // Inline marker: `KEY=   # optional` on the same line.
+    const match = /^([A-Za-z_][A-Za-z0-9_]*)\s*=[^#]*(#.*)?$/.exec(line);
+    if (match !== null) {
+      const comment = match[2] ?? '';
+      if (INLINE_RE.test(comment)) {
+        const key = match[1];
+        if (key !== undefined) optionalKeys.add(key);
+      }
+    }
+  }
+
+  return optionalKeys;
+}
