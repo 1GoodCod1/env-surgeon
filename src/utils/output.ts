@@ -4,6 +4,7 @@ import type { DiffResult } from '../core/differ.js';
 import type { CheckResult } from '../core/checker.js';
 import type { ValidationResult } from '../core/validator.js';
 import type { ScanResult } from '../core/scanner.js';
+import { checkResultToJUnit, validationResultToJUnit } from './reporter.js';
 
 export type OutputFormat = 'text' | 'json' | 'junit';
 
