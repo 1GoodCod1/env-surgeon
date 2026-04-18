@@ -5,7 +5,7 @@ export type { DiffResult, DiffEntry } from './core/differ.js';
 export { readEnvCascade, defaultEnvCascade, UserError } from './utils/errors.js';
 
 import { resolve } from 'node:path';
-import { parseEnvString, parseEnvFile } from './core/parser.js';
+import { parseEnvFile } from './core/parser.js';
 import { diffEnvMaps } from './core/differ.js';
 import { readEnvCascade, defaultEnvCascade } from './utils/errors.js';
 import type { DiffResult } from './core/differ.js';

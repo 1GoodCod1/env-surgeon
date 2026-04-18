@@ -1,7 +1,8 @@
 import chalk from 'chalk';
+import { maskValue } from './mask.js';
 import type { DiffResult } from '../core/differ.js';
 import type { CheckResult } from '../core/checker.js';
-import { maskValue } from './mask.js';
+import type { ValidationResult } from '../core/validator.js';
 
 export type OutputFormat = 'text' | 'json' | 'junit';
 
