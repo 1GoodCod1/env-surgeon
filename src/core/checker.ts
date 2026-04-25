@@ -78,14 +78,25 @@ export function parseOptionalKeys(raw: string): ReadonlySet<string> {
   const optionalKeys = new Set<string>();
   const INLINE_RE = /#\s*optional\b/i;
 
+  // Next line after `# optional` must be the assignment (not blank, not a
+  // full-line # comment). Otherwise the marker does not apply to a later
+  // `KEY=` line. `export KEY=` is supported.
+  const ASSIGN_AFTER_OPTIONAL = /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=/;
+
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]?.trim() ?? '';
-    const nextLine = lines[i + 1]?.trim() ?? '';
+    const nextRaw = lines[i + 1] ?? '';
+    const nextTrim = nextRaw.trim();
 
-    // Marker line above the key: `# optional\nKEY=`
-    if (/^#\s*optional\s*$/i.test(line) && nextLine !== '') {
-      const key = nextLine.split('=')[0]?.trim();
-      if (key !== undefined && key.length > 0) optionalKeys.add(key);
+    // Marker line above the key: `# optional\nKEY=` (next line is the only candidate)
+    if (/^#\s*optional\s*$/i.test(line)) {
+      if (nextTrim === '' || nextTrim.startsWith('#')) {
+        continue;
+      }
+      const m = ASSIGN_AFTER_OPTIONAL.exec(nextRaw);
+      if (m !== null && m[1] !== undefined) {
+        optionalKeys.add(m[1]);
+      }
     }
 
     // Inline marker: `KEY=   # optional` on the same line.
