@@ -194,7 +194,7 @@ See [docs/guide.md](docs/guide.md) for:
 
 ## Requirements
 
-- Node.js >= 18
+- Node.js >= 20
 
 ## License
 
