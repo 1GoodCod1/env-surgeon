@@ -1,6 +1,6 @@
 {
   "name": "env-surgeon",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "CLI + library to diff, scan, check and validate .env files",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -32,9 +32,9 @@
     "12factor",
     "configuration"
   ],
-  "homepage": "https://github.com/env-surgeon/env-surgeon#readme",
+  "homepage": "https://github.com/1GoodCod1/env-surgeon#readme",
   "scripts": {
-    "postinstall": "patch-package",
+    "prepare": "patch-package",
     "build": "tsup",
     "dev": "tsup --watch",
     "pretest": "tsup",
@@ -52,7 +52,7 @@
     "url": "git+https://github.com/1GoodCod1/env-surgeon.git"
   },
   "bugs": {
-    "url": "https://github.com/env-surgeon/env-surgeon/issues"
+    "url": "https://github.com/1GoodCod1/env-surgeon/issues"
   },
   "author": "env-surgeon contributors",
   "license": "MIT",
