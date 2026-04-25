@@ -29,8 +29,8 @@ export function printDiff(
       ...result,
       different: result.different.map((e) => ({
         key: e.key,
-        left: maskValue(e.left), //TODO: maskValue function
-        right: maskValue(e.right), //TODO: maskValue function
+        left: maskValue(e.left),
+        right: maskValue(e.right),
       })),
     };
     console.log(JSON.stringify(safe, null, 2));
@@ -72,7 +72,6 @@ export function printDiff(
   console.log('');
 }
 
-// TODO: CheckResult type, checkResultToJUnit function
 export function printCheck(result: CheckResult, opts: OutputOptions): void {
   if (opts.silent) return;
 
@@ -112,7 +111,6 @@ export function printCheck(result: CheckResult, opts: OutputOptions): void {
   }
 }
 
-// TODO: ValidationResult type, validationResultToJUnit function
 export function printValidation(result: ValidationResult, opts: OutputOptions): void {
   if (opts.silent) return;
 
@@ -137,7 +135,6 @@ export function printValidation(result: ValidationResult, opts: OutputOptions): 
   }
 }
 
-// TODO: ScanResult type, scanResultToJUnit function
 export function printScan(result: ScanResult, opts: OutputOptions): void {
   if (opts.silent) return;
 
