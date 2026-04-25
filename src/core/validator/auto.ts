@@ -2,6 +2,7 @@ import { readFile, realpath } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import { resolve, relative, isAbsolute } from 'node:path';
 import type { EnvMap } from '../parser.js';
+import { UserError } from '../../utils/errors.js';
 import {
   isSchema,
   VALID_TYPES,
@@ -66,10 +67,36 @@ export async function loadSchemaAuto(
       }
     }
 
-    const mod = (await import(pathToFileURL(absolutePath).href)) as {
-      default?: unknown;
-      schema?: unknown;
-    };
+    let mod: { default?: unknown; schema?: unknown };
+    try {
+      mod = (await import(pathToFileURL(absolutePath).href)) as {
+        default?: unknown;
+        schema?: unknown;
+      };
+    } catch (err) {
+      const code =
+        err !== null && typeof err === 'object' && 'code' in err
+          ? String((err as { code: unknown }).code)
+          : '';
+      const message = err instanceof Error ? err.message : String(err);
+
+      if (
+        code === 'ERR_REQUIRE_ESM' ||
+        /Cannot use import statement outside a module/i.test(message)
+      ) {
+        throw new UserError(
+          `Failed to load schema: ${schemaPath} uses ESM syntax in a CommonJS context.\n` +
+            `Rename it to .mjs, or add "type": "module" to the nearest package.json.`,
+        );
+      }
+      if (err instanceof SyntaxError) {
+        throw new UserError(`Failed to load schema ${schemaPath}: ${message}`);
+      }
+      if (code === 'ERR_MODULE_NOT_FOUND' || code === 'MODULE_NOT_FOUND' || code === 'ENOENT') {
+        throw new UserError(`Failed to load schema ${schemaPath}: ${message}`);
+      }
+      throw new UserError(`Failed to load schema ${schemaPath}: ${message}`);
+    }
     const parsed = mod.default ?? mod.schema ?? mod;
 
     if (isZodSchema(parsed)) return { kind: 'zod', schema: parsed };

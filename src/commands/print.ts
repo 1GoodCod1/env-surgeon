@@ -36,5 +36,8 @@ export async function runPrint(options: PrintCommandOptions): Promise<number> {
   for (const [k, v] of entries) {
     console.log(`${k}=${render(v)}`);
   }
+  if (!reveal && entries.length > 0 && process.stderr.isTTY) {
+    console.error('\n(values masked — use --reveal to show actual values)');
+  }
   return 0;
 }
