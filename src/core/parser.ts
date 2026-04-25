@@ -42,7 +42,7 @@ export async function parseEnvFile(options: ParserOptions): Promise<EnvMap> {
   /* Finds out the file size before reading. */
   const info = await stat(path);
   if (info.size > maxBytes) {
-    throw new Error(`.env file too larger: ${path} ${info} bytes, limit ${maxBytes}`);
+    throw new Error(`.env file is too large: ${path} ${info.size} bytes, limit ${maxBytes}`);
   }
   const raw = await readFile(path, 'utf-8');
   return parseEnvString(raw, { expand });
@@ -62,7 +62,7 @@ const LINE_RE =
 
 export function parseEnvString(raw: string, options: ParseStringOptions = {}): EnvMap {
   const result = new Map<string, string>();
-  const expandable: Array<{ key: string; qouted: boolean }> = [];
+  const expandable: Array<{ key: string; quoted: boolean }> = [];
   const normalized = raw.replace(/\r\n/g, '\n');
 
   LINE_RE.lastIndex = 0;
@@ -72,10 +72,10 @@ export function parseEnvString(raw: string, options: ParseStringOptions = {}): E
     if (key === undefined) continue;
 
     let value: string;
-    let qouted = false;
+    let quoted = false;
     if (double !== undefined) {
-      value = undescapeDoubleQouted(double);
-      qouted = true;
+      value = undescapeDoubleQuoted(double);
+      quoted = true;
     } else if (single !== undefined) {
       // SingeQ are literal -> never expand
       result.set(key, single);
@@ -85,7 +85,7 @@ export function parseEnvString(raw: string, options: ParseStringOptions = {}): E
     }
 
     result.set(key, value);
-    if (options.expand === true) expandable.push({ key, qouted });
+    if (options.expand === true) expandable.push({ key, quoted });
   }
 
   if (options.expand === true) {
@@ -164,7 +164,7 @@ function resolveVar(
   return resolved;
 }
 
-function undescapeDoubleQouted(value: string): string {
+function undescapeDoubleQuoted(value: string): string {
   return value.replace(/\\(.)/g, (_, ch: string) => {
     switch (ch) {
       case 'n':
