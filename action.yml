@@ -1,0 +1,125 @@
+name: env-surgeon
+description: Diff, scan, check and validate .env files in CI.
+author: env-surgeon
+
+branding:
+  icon: shield
+  color: green
+
+inputs:
+  command:
+    description: 'Which env-surgeon command to run: check | validate | scan | diff | unused'
+    required: true
+    default: check
+  env:
+    description: 'Path to the env file (or comma-separated cascade). Ignored for scan/diff.'
+    required: false
+    default: .env
+  template:
+    description: 'Template file for `check`. Default .env.example.'
+    required: false
+    default: .env.example
+  schema:
+    description: 'Schema file for `validate` (JSON, JS or Zod).'
+    required: false
+    default: ''
+  dir:
+    description: 'Source directory for `scan` / `unused`.'
+    required: false
+    default: ./src
+  output:
+    description: 'Output path for `scan` (the generated .env.example).'
+    required: false
+    default: ''
+  reporter:
+    description: 'Reporter: text | json | junit.'
+    required: false
+    default: text
+  strict:
+    description: 'Pass --strict to the command.'
+    required: false
+    default: 'false'
+  expand:
+    description: 'Pass --expand (dotenv-expand semantics).'
+    required: false
+    default: 'false'
+  version:
+    description: 'env-surgeon version to run (npm semver range). Default: latest.'
+    required: false
+    default: latest
+  working-directory:
+    description: 'Directory to run the command in.'
+    required: false
+    default: .
+
+outputs:
+  exit-code:
+    description: 'Exit code of the env-surgeon invocation (0 = ok).'
+    value: ${{ steps.run.outputs.exit-code }}
+
+runs:
+  using: composite
+  steps:
+    - name: Run env-surgeon
+      id: run
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        ES_COMMAND: ${{ inputs.command }}
+        ES_ENV: ${{ inputs.env }}
+        ES_TEMPLATE: ${{ inputs.template }}
+        ES_SCHEMA: ${{ inputs.schema }}
+        ES_DIR: ${{ inputs.dir }}
+        ES_OUTPUT: ${{ inputs.output }}
+        ES_REPORTER: ${{ inputs.reporter }}
+        ES_STRICT: ${{ inputs.strict }}
+        ES_EXPAND: ${{ inputs.expand }}
+        ES_VERSION: ${{ inputs.version }}
+      run: |
+        set -euo pipefail
+
+        case "$ES_COMMAND" in
+          check|validate|scan|diff|unused) ;;
+          *) echo "::error::Unsupported command: $ES_COMMAND"; exit 2 ;;
+        esac
+
+        args=("$ES_COMMAND")
+
+        case "$ES_COMMAND" in
+          check)
+            args+=(--env "$ES_ENV" --template "$ES_TEMPLATE")
+            ;;
+          validate)
+            args+=(--env "$ES_ENV")
+            [[ -n "$ES_SCHEMA" ]] && args+=(--schema "$ES_SCHEMA")
+            ;;
+          scan)
+            args+=("$ES_DIR")
+            [[ -n "$ES_OUTPUT" ]] && args+=(--output "$ES_OUTPUT")
+            ;;
+          unused)
+            args+=("$ES_DIR" --env "$ES_ENV")
+            ;;
+          diff)
+            # For diff the caller should pass the two files via `env` as a
+            # comma-separated pair: env: ".env,.env.production"
+            IFS=',' read -ra files <<< "$ES_ENV"
+            if [[ ${#files[@]} -ne 2 ]]; then
+              echo "::error::diff requires two comma-separated paths in `env`"
+              exit 2
+            fi
+            args+=("${files[0]}" "${files[1]}")
+            ;;
+        esac
+
+        args+=(--reporter "$ES_REPORTER")
+        [[ "$ES_STRICT" == "true" ]] && args+=(--strict)
+        [[ "$ES_EXPAND" == "true" ]] && args+=(--expand)
+
+        set +e
+        npx --yes "env-surgeon@$ES_VERSION" "${args[@]}"
+        code=$?
+        set -e
+
+        echo "exit-code=$code" >> "$GITHUB_OUTPUT"
+        exit "$code"
