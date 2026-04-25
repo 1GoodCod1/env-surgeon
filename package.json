@@ -1,6 +1,6 @@
 {
   "name": "env-surgeon",
-  "version": "0.1.1",
+  "version": "0.1.0",
   "description": "CLI + library to diff, scan, check and validate .env files",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -83,6 +83,6 @@
     "vitest": "^4.1.4"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   }
 }
